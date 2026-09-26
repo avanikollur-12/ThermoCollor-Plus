@@ -1,1 +1,222 @@
+# 🧪 ThermoCollar+ Prototype Testing
+
+## 1. Testing Objective
+
+The objective of prototype testing was to verify that ThermoCollar+ can:
+
+1. Read temperature and humidity from the DHT22.
+2. Calculate the Temperature-Humidity Index (THI).
+3. Classify the environmental condition using the defined THI thresholds.
+4. Display the appropriate RGB status.
+5. Activate the buzzer during a high-risk condition.
+6. Display the resulting information through the monitoring interface.
+
+---
+
+## 2. Test Environment
+
+The prototype was tested using:
+
+* ESP32 DevKit V1
+* DHT22 temperature/humidity sensor
+* RGB LED
+* 220Ω resistors
+* Buzzer
+* Power source
+* ThermoCollar+ firmware
+* Streamlit monitoring dashboard
+
+Testing included live sensor readings and controlled changes in the surrounding conditions.
+
+---
+
+## 3. Risk Classification Used
+
+The prototype uses the following thresholds:
+
+|        THI | Classification | Expected Output        |
+| ---------: | -------------- | ---------------------- |
+|     `< 68` | SAFE           | Green LED + Buzzer OFF |
+| `68 – <79` | CAUTION        | Blue LED + Buzzer OFF  |
+|     `≥ 79` | HIGH           | Red LED + Buzzer Alert |
+
+---
+
+# 4. Test Case 01 — Safe Condition
+
+### Objective
+
+Verify the system response when the calculated THI is below 68.
+
+### Procedure
+
+1. Power on the ThermoCollar+ prototype.
+2. Allow the DHT22 to obtain a stable reading.
+3. Record temperature and humidity.
+4. Calculate THI.
+5. Observe the RGB LED and buzzer.
+
+### Expected Result
+
+```text
+THI < 68
+   ↓
+SAFE
+   ↓
+Green LED
+   ↓
+Buzzer OFF
+```
+
+### Result
+
+**PASS**
+
+The prototype correctly indicated the safe condition using the green LED and kept the buzzer OFF.
+
+---
+
+# 5. Test Case 02 — Caution Condition
+
+### Objective
+
+Verify the system response when THI enters the caution range.
+
+### Procedure
+
+1. Increase the surrounding temperature and/or humidity.
+2. Allow the DHT22 to obtain updated readings.
+3. Calculate the resulting THI.
+4. Observe the RGB LED and buzzer.
+
+### Expected Result
+
+```text
+68 ≤ THI < 79
+       ↓
+    CAUTION
+       ↓
+    Blue LED
+       ↓
+    Buzzer OFF
+```
+
+### Result
+
+**PASS**
+
+The prototype indicated the caution condition using the blue LED while keeping the buzzer OFF.
+
+---
+
+# 6. Test Case 03 — High-Risk Condition
+
+### Objective
+
+Verify the system response when THI reaches or exceeds 79.
+
+### Procedure
+
+1. Increase the environmental heat/humidity condition.
+2. Monitor the DHT22 readings.
+3. Calculate THI.
+4. Observe the RGB LED and buzzer.
+5. Verify the dashboard risk status.
+
+### Expected Result
+
+```text
+THI ≥ 79
+   ↓
+HIGH
+   ↓
+Red LED
+   +
+Buzzer Alert
+   +
+Dashboard High Risk
+```
+
+### Result
+
+**PASS**
+
+The prototype entered the high-risk state, displayed the red LED, and generated the buzzer alert.
+
+---
+
+# 7. Test Summary
+
+| Test | Condition     | Expected       | Prototype Response | Status |
+| ---- | ------------- | -------------- | ------------------ | ------ |
+| 01   | THI < 68      | Green / Safe   | Green / Safe       | ✅ PASS |
+| 02   | 68 ≤ THI < 79 | Blue / Caution | Blue / Caution     | ✅ PASS |
+| 03   | THI ≥ 79      | Red + Buzzer   | Red + Buzzer       | ✅ PASS |
+
+---
+
+# 8. Dashboard Verification
+
+The Streamlit dashboard was also checked for display of relevant monitoring information.
+
+The prototype dashboard includes:
+
+* Temperature
+* Humidity
+* THI
+* Risk classification
+* RGB status
+* Buzzer status
+* Animal profile
+* Alerts
+* Herd visualization
+* Recommended actions
+
+The dashboard also supports English and Kannada.
+
+---
+
+# 9. Communication Testing
+
+The SIM800C module was tested as an optional communication component.
+
+During testing, network registration was not sufficiently reliable to establish consistent live SMS delivery.
+
+Therefore, successful live SMS delivery is **not claimed as a validated prototype result**.
+
+The communication feature remains suitable for further development and field testing.
+
+---
+
+# 10. GPS Testing
+
+The current dashboard includes animal location visualization for demonstration purposes.
+
+The displayed locations are **prototype/simulated GPS data**.
+
+No physical GPS module is currently integrated into the collar.
+
+Therefore, live GPS tracking from the animal collar was not part of the validated hardware testing.
+
+---
+
+# 11. Testing Conclusion
+
+The testing demonstrated the core ThermoCollar+ workflow:
+
+```text
+Sense
+  ↓
+Calculate THI
+  ↓
+Classify Risk
+  ↓
+Local Alert
+  ↓
+Dashboard Monitoring
+```
+
+The prototype successfully demonstrated temperature and humidity sensing, THI calculation, rule-based risk classification, RGB status indication, and buzzer-based high-risk alerting.
+
+Further field testing is required to evaluate long-term operation, real livestock deployment, GPS tracking, remote communication reliability, and data collection for future intelligent models.
 
