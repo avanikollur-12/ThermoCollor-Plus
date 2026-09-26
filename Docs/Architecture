@@ -1,1 +1,280 @@
+# 🏗️ ThermoCollar+ System Architecture
+
+## 1. System Overview
+
+ThermoCollar+ is a wearable livestock monitoring prototype that combines environmental sensing, THI-based heat-risk classification, local alerts, and a farmer-facing dashboard.
+
+The system is designed around the workflow:
+
+**Detect → Alert → Locate → Respond → Recover**
+
+---
+
+## 2. High-Level Architecture
+
+```text
+                         THERMOCOLLAR+
+                              │
+                              ▼
+                    ┌──────────────────┐
+                    │      DHT22       │
+                    │ Temperature +    │
+                    │ Relative Humidity│
+                    └────────┬─────────┘
+                             │
+                             ▼
+                    ┌──────────────────┐
+                    │      ESP32       │
+                    │ Sensor Processing│
+                    └────────┬─────────┘
+                             │
+                             ▼
+                    ┌──────────────────┐
+                    │  THI Calculation │
+                    └────────┬─────────┘
+                             │
+                             ▼
+                  ┌──────────────────────┐
+                  │ Rule-Based Risk      │
+                  │ Classification       │
+                  └──────────┬───────────┘
+                             │
+             ┌───────────────┼────────────────┐
+             │               │                │
+             ▼               ▼                ▼
+          🟢 SAFE         🔵 CAUTION       🔴 HIGH
+             │               │                │
+             ▼               ▼                ▼
+        Green LED         Blue LED       Red LED
+                                             +
+                                          Buzzer
+                             │
+                             ▼
+                    Farmer Dashboard
+                             │
+              ┌──────────────┼──────────────┐
+              ▼              ▼              ▼
+          Sensor Data      Alerts       Herd Map
+              │              │              │
+              └──────────────┼──────────────┘
+                             ▼
+                    Recommended Action
+```
+
+---
+
+## 3. Sensing Layer
+
+The sensing layer uses a **DHT22 temperature and humidity sensor**.
+
+The sensor provides:
+
+* Temperature in °C
+* Relative humidity in %
+
+These values are periodically read by the ESP32.
+
+Current prototype reading interval:
+
+**2 seconds**
+
+---
+
+## 4. Processing Layer
+
+The ESP32 acts as the primary controller.
+
+After receiving temperature and humidity values, the firmware calculates the Temperature-Humidity Index (THI).
+
+### THI Formula
+
+```text
+THI = (1.8T + 32)
+      - ((0.55 - 0.0055RH)
+      × (1.8T - 26.8))
+```
+
+Where:
+
+* `T` = Temperature in °C
+* `RH` = Relative humidity %
+
+---
+
+## 5. Decision Layer
+
+The current prototype uses a **rule-based classification system**.
+
+```text
+THI < 68
+    ↓
+SAFE
+
+68 ≤ THI < 79
+    ↓
+CAUTION
+
+THI ≥ 79
+    ↓
+HIGH
+```
+
+No trained machine-learning model is currently used.
+
+---
+
+## 6. Local Alert Layer
+
+The collar provides immediate local feedback.
+
+| Risk    | RGB LED | Buzzer      |
+| ------- | ------- | ----------- |
+| SAFE    | Green   | OFF         |
+| CAUTION | Blue    | OFF         |
+| HIGH    | Red     | Short alert |
+
+This allows the condition to be identified directly at the animal/collar level.
+
+---
+
+## 7. Dashboard Layer
+
+The Streamlit dashboard provides a farmer-oriented interface for monitoring the livestock.
+
+The dashboard can display:
+
+* Animal information
+* Temperature
+* Humidity
+* THI
+* Risk status
+* RGB status
+* Buzzer status
+* Communication status
+* Alerts
+* Recommended actions
+* Herd visualization
+* Map-based animal locations
+
+The dashboard supports **English and Kannada**.
+
+---
+
+## 8. Location Visualization
+
+The dashboard includes a herd map for visualizing animal locations.
+
+The current implementation uses **prototype/simulated GPS data**.
+
+The physical collar does not currently contain a GPS module.
+
+Therefore, map locations should be interpreted as demonstration data rather than live GPS coordinates from the collar.
+
+---
+
+## 9. Communication Layer
+
+The system architecture supports optional remote communication.
+
+```text
+ESP32
+  │
+  └── SIM800C
+         │
+         ▼
+   Optional GSM/SMS
+```
+
+The SIM800C prototype was tested, but network registration was not reliable enough to establish consistent live SMS delivery.
+
+Remote communication is therefore considered an optional/future deployment feature.
+
+---
+
+## 10. Farmer Response Layer
+
+When a high-risk condition is identified, the system is designed to support the following response:
+
+```text
+Detect
+  ↓
+Alert
+  ↓
+Locate
+  ↓
+Provide Water
+  ↓
+Move to Shade
+  ↓
+Start Cooling
+  ↓
+Continue Monitoring
+```
+
+The system provides recommendations; the actual physical response is performed by the farmer or caretaker.
+
+---
+
+## 11. Complete System Flow
+
+```text
+Temperature + Humidity
+          │
+          ▼
+        DHT22
+          │
+          ▼
+        ESP32
+          │
+          ▼
+     THI Calculation
+          │
+          ▼
+   Rule-Based Decision
+          │
+    ┌─────┼─────┐
+    ▼     ▼     ▼
+  SAFE  CAUTION HIGH
+    │     │     │
+    ▼     ▼     ▼
+ Green  Blue   Red
+              + Buzzer
+    │     │     │
+    └─────┼─────┘
+          ▼
+   Farmer Dashboard
+          │
+          ▼
+    Alert + Location
+          │
+          ▼
+ Recommended Response
+          │
+          ▼
+      Recovery
+```
+
+---
+
+## 12. Current Prototype Boundaries
+
+The current architecture demonstrates:
+
+* Real temperature sensing
+* Real humidity sensing
+* Real ESP32 processing
+* Real THI calculation
+* Real rule-based classification
+* Real RGB indication
+* Real buzzer alert
+* Working dashboard prototype
+
+The following are not currently represented as fully validated hardware capabilities:
+
+* Physical GPS tracking
+* Reliable live GSM/SMS delivery
+* Machine-learning-based prediction
+* Long-term field deployment
+
+These areas form part of the future development roadmap.
 
